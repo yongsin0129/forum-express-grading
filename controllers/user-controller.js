@@ -49,19 +49,36 @@ const userController = {
     const id = req.params.id
     return User.findByPk(id, {
       nest: true,
-      include: { model: Comment, include: Restaurant }
+      include: [
+        { model: Comment, include: Restaurant },
+        { model: Restaurant, as: 'FavoritedRestaurants' },
+        { model: User, as: 'Followers' },
+        { model: User, as: 'Followings' }
+      ]
     })
       .then(user => {
         if (!user) throw new Error("user didn't exist!")
-        // 因為 多加過濾重複的餐廳會導致 R03 測試不過，所以先屏蔽掉
+        // #1 使用filter 的寫法
+
         // const nonRepeatRestComments = user
         //   .toJSON()
         //   .Comments.filter(function (comment, index, array) {
         //     // 將每一個 comment 重新丟進原 array 確認 index , 若 index 非一次出現的值，則為重複的餐廳
         //     return array.findIndex(arr => arr.Restaurant.id === comment.Restaurant.id) === index
         //   })
-        // 如果有需要用餐廳過濾，再指定給 comments:nonRepeatRestComments 取代 user.toJSON().Comments
-        return res.render('users/profile', { user: user.toJSON(), comments: user.toJSON().Comments })
+
+        // #2 使用 set 的寫法
+        const nonRepeatRestComments = []
+        const nonRepeatRestIdSet = new Set()
+        if (req.user) {
+          user.toJSON().Comments.forEach(comment => {
+            if (!nonRepeatRestIdSet.has(comment.Restaurant.id)) {
+              nonRepeatRestIdSet.add(comment.Restaurant.id)
+              nonRepeatRestComments.push(comment)
+            }
+          })
+        }
+        return res.render('users/profile', { user: user.toJSON(), comments: nonRepeatRestComments })
       })
       .catch(err => next(err))
   },
@@ -201,6 +218,10 @@ const userController = {
 
   addFollowing: (req, res, next) => {
     const { userId } = req.params
+    if (req.user.id === Number(userId)) {
+      req.flash('error_messages', 'Can not follow yourself')
+      return res.redirect('/users/top')
+    }
     Promise.all([
       User.findByPk(userId),
       Followship.findOne({

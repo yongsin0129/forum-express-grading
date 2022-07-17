@@ -6,7 +6,10 @@
   <div class="col-md-8">
     <p style="white-space: break-spaces;">{{user.name}}</p>
     <p style="white-space: break-spaces;">{{user.email}}</p>
+    <p style="white-space: break-spaces;">{{user.Followings.length}} followings (追蹤者)</p>
+    <p style="white-space: break-spaces;">{{user.Followers.length}} followers (追隨者)</p>
     <p style="white-space: break-spaces;">{{comments.length}} 個已評論餐廳</p>
+    <p style="white-space: break-spaces;">{{user.FavoritedRestaurants.length}} 收藏的餐廳</p>
     {{#ifCond operator.id user.id}}
     <a href="/users/{{user.id}}/edit" class="btn btn-info">edit</a>
     {{/ifCond }}
@@ -14,16 +17,88 @@
 </div>
 
 <div class="row mb-5">
-  <div class="col-12">
-    <p style="white-space: break-spaces;">{{comments.length}} 個已評論餐廳</p>
-  </div>
-  {{#each comments}}
-  <div class="col-md-1 mr-3">
-    <a href="/restaurants/{{this.Restaurant.id}}">
-      <img class="img-responsive center-block mb-1" src="{{this.Restaurant.image}}"
-        style="width: 100%; transition: opacity 0.5s; opacity:0;" onload="this.style.opacity=1;">
-      <p>{{this.Restaurant.name}}</p>
-    </a>
-  </div>
-  {{/each}}
+
+  <section class="leftHand-Side col-4">
+    <div class="card">
+      <div class="card-header">
+        <span class='me-1'>{{user.Followings.length}}</span>followings 追蹤者
+      </div>
+      {{#if user.Followings}}
+      <div class="card-body row">
+        {{#each user.Followings}}
+        <div class="col-4">
+          <a href="/users/{{this.id}}"
+            style="text-align: center;display: flex;flex-direction: column;align-items: center;">
+            <img
+              src="{{#if this.image}}{{this.image}}{{else}}https://via.placeholder.com/90.png?text={{this.name}}{{/if}}"
+              class="rounded" width="100%" height="80vh" alt="it is a photo for user: {{this.name}}" />
+              <p style="font-size:0.5rem">{{this.name}}</p>
+          </a>
+        </div>
+        {{/each}}
+      </div>
+      {{/if}}
+    </div>
+    <div class="card">
+      <div class="card-header">
+        <span class='me-1'>{{user.Followers.length}}</span>followers 追隨者
+      </div>
+      {{#if user.Followers}}
+      <div class="card-body row">
+        {{#each user.Followers}}
+        <div class="col-4">
+          <a href="/users/{{this.id}}"
+            style="text-align: center;display: flex;flex-direction: column;align-items: center;">
+            <img
+              src="{{#if this.image}}{{this.image}}{{else}}https://via.placeholder.com/90.png?text={{this.name}}{{/if}}"
+              class="rounded" width="100%" height="80vh" alt="it is a photo for user: {{this.name}}" />
+              <p style="font-size:0.5rem">{{this.name}}</p>
+          </a>
+        </div>
+        {{/each}}
+      </div>
+      {{/if}}
+    </div>
+  </section>
+
+  <section class="rightHand-Side col-8">
+    <div class="card">
+      <div class="card-header">
+        <span class='me-1'>{{comments.length}}</span>個已評論的餐廳
+      </div>
+      {{#if comments}}
+      <div class="card-body row">
+        {{#each comments}}
+        <div class="col-2">
+          <a href="/restaurants/{{this.Restaurant.id}}"
+            style="text-align: center;display: flex;flex-direction: column;align-items: center;">
+            <img src="{{this.Restaurant.image}}" class="rounded" width="100%"
+              alt="it is a photo for restaurant {{this.Restaurant.name}}" />
+            <p style="font-size:0.5rem">{{this.Restaurant.name}}</p>
+          </a>
+        </div>
+        {{/each}}
+      </div>
+      {{/if}}
+    </div>
+    <div class="card my-1">
+      <div class="card-header">
+        <span class='me-1'>{{user.FavoritedRestaurants.length}}</span>個收藏中的餐廳
+      </div>
+      {{#if user.FavoritedRestaurants}}
+      <div class="card-body row">
+        {{#each user.FavoritedRestaurants}}
+        <div class="col-2">
+          <a href="/restaurants/{{this.id}}"
+            style="text-align: center;display: flex;flex-direction: column;align-items: center;">
+            <img src="{{this.image}}" class="rounded" width="100%" alt="it is a photo for restaurant {{this.name}}" />
+            <p style="font-size:0.5rem">{{this.name}}</p>
+          </a>
+        </div>
+        {{/each}}
+      </div>
+      {{/if}}
+    </div>
+  </section>
+
 </div>
