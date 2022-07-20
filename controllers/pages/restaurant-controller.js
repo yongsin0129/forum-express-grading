@@ -1,5 +1,5 @@
-const { Restaurant, Category, Comment, User } = require('../models')
-const { getOffset, getPagination } = require('../helpers/pagination-helper')
+const { Restaurant, Category, Comment, User } = require('../../models')
+const { getOffset, getPagination } = require('../../helpers/pagination-helper')
 
 const restaurantController = {
   getRestaurants: (req, res) => {
@@ -105,7 +105,8 @@ const restaurantController = {
               description: restaurant.description.substring(0, 150),
               favoritedCount: restaurant.FavoritedUsers.length,
               // 從 passport deserializeUser 中拿到 FavoritedRestaurants 與 restaurants 比對
-              isFavorited: req.user && req.user.FavoritedRestaurants.some(f => f.id === restaurant.id)
+              isFavorited:
+                req.user && req.user.FavoritedRestaurants.some(f => f.id === restaurant.id)
             }
           })
           .sort((a, b) => b.favoritedCount - a.favoritedCount)
