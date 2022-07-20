@@ -1,15 +1,12 @@
 const { Restaurant, User, Category } = require('../../models')
+const adminServices = require('../../services/admin-services') // 新增這裡，引入 admin-services
 const { imgurFileHandler } = require('../../helpers/file-helpers')
 
 const adminController = {
   getRestaurants: (req, res, next) => {
-    Restaurant.findAll({
-      raw: true,
-      nest: true,
-      include: [Category]
+    adminServices.getRestaurants(req, (err, data) => {
+      err ? next(err) : res.render('admin/restaurants', data)
     })
-      .then(restaurants => res.render('admin/restaurants', { restaurants }))
-      .catch(err => next(err))
   },
 
   createRestaurant: (req, res, next) => {
@@ -61,7 +58,10 @@ const adminController = {
 
   editRestaurant: (req, res, next) => {
     // 同時去「查詢 Restaurants table」 和「查詢 Categories table」，但這兩件事沒有先後順序，不需要互相等待。故用 Promise.all
-    return Promise.all([Restaurant.findByPk(req.params.id, { raw: true }), Category.findAll({ raw: true })])
+    return Promise.all([
+      Restaurant.findByPk(req.params.id, { raw: true }),
+      Category.findAll({ raw: true })
+    ])
       .then(([restaurant, categories]) => {
         if (!restaurant) throw new Error("Restaurant doesn't exist!")
         res.render('admin/edit-restaurant', { restaurant, categories })
