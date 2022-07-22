@@ -1,4 +1,5 @@
 const jwt = require('jsonwebtoken')
+const userServices = require('../../services/user-services')
 
 const userController = {
   signIn: (req, res, next) => {
@@ -13,6 +14,14 @@ const userController = {
           user: userData
         }
       })
+    } catch (err) {
+      next(err)
+    }
+  },
+
+  signUp: (req, res, next) => {
+    try {
+      userServices.signUp(req, (err, data) => (err ? next(err) : res.json(data)))
     } catch (err) {
       next(err)
     }
